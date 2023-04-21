@@ -9,3 +9,5 @@ My heat pump's format is however slightly different, but the basics helped to fi
 I programmed an ESP32 to listen to the RS485 bus and log all frames to MQTT. The firmware is available in the firmware directly in the repository. The data is written to Influxdb and I plot the values using Grafana.
 
 ![Graphs](GrafanaGraphs.png "Graphing values")
+
+![ESP32](HeatpumpESP32.jpg)
