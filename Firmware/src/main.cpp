@@ -10,8 +10,7 @@
 #include "temperature.hpp"
 #include "reason.hpp"
 #include "webserver.hpp"
-
-
+#include "xye.hpp"
 
 // variabls for blinking an LED with Millis
 #define LED 2
@@ -57,6 +56,35 @@ void setupTaskThree()
       NULL,              /* Parameter passed as input of the task */
       1,                 /* Priority of the task. */
       &taskThreeHandle); /* Task handle. */
+}
+
+// Task two
+void taskTwo(void *parameter)
+{
+  while (1)
+  {
+    // Listen on RS485
+    loopXyeOnce();
+    delay(100);
+  }
+}
+
+void killTaskTwo()
+{
+  vTaskDelete(taskTwoHandle);
+}
+
+void setupTaskTwo()
+{
+  setupXye();
+
+  xTaskCreate(
+      taskTwo,         /* Task function. */
+      "taskTwo",       /* String with name of task. */
+      10000,           /* Stack size in bytes. */
+      NULL,            /* Parameter passed as input of the task */
+      1,               /* Priority of the task. */
+      &taskTwoHandle); /* Task handle. */
 }
 
 void loop(void)
@@ -148,6 +176,6 @@ void setup(void)
   snprintf(myMessage.raw, sizeof(myMessage.raw), "system startup, %s, %s", reason0, reason1);
   xQueueSend(queue, &myMessage, portTICK_PERIOD_MS * 1000);
 
-  // setupTaskTwo();
+  setupTaskTwo();
   setupTaskThree();
 }
