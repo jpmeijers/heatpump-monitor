@@ -1,0 +1,2 @@
+void setupTemperature();
+void getTemperature();
