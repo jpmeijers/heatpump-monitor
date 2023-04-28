@@ -102,8 +102,4 @@ Model KJR-26B or SUNI-W/H-002
 
 ![Graphs](images/GrafanaGraphs.png "Graphing values")
 
-## Hardware
-
-![ESP32](images/HeatpumpESP32.jpg "Hardware")
-
 
