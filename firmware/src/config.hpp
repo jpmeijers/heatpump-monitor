@@ -1,0 +1,2 @@
+#define ONE_WIRE_BUS 4
+#define ONEWIRE_READ_INTERVAL 1000

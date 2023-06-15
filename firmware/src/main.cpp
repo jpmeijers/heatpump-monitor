@@ -11,6 +11,7 @@
 #include "reason.hpp"
 #include "webserver.hpp"
 #include "xye.hpp"
+#include "onewire.hpp"
 
 // variabls for blinking an LED with Millis
 #define LED 2
@@ -120,6 +121,7 @@ void loop(void)
   loopWebserverOnce();
   mqttLoopOnce();
   ntpLoopOnce();
+  loopOneWireOnce();
 
   delay(100);
 }
@@ -127,6 +129,7 @@ void loop(void)
 /* setup function */
 void setup(void)
 {
+  setupQueue();
   pinMode(LED, OUTPUT);
 
   Serial.begin(115200);
@@ -163,10 +166,6 @@ void setup(void)
   }
   Serial.println("mDNS responder started");
 
-  setupMqtt();
-  setupQueue();
-  setupWebserver();
-
   // Send startup reason as event
   String reason0 = get_reset_reason(get_reset_reason_code(0));
   String reason1 = get_reset_reason(get_reset_reason_code(1));
@@ -176,6 +175,13 @@ void setup(void)
   snprintf(myMessage.raw, sizeof(myMessage.raw), "system startup, %s, %s", reason0, reason1);
   xQueueSend(queue, &myMessage, portTICK_PERIOD_MS * 1000);
 
+
+  setupMqtt();
+  setupWebserver();
+  setupOneWire();
+
   setupTaskTwo();
   setupTaskThree();
+
+
 }
