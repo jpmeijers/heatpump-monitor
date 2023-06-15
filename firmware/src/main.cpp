@@ -12,13 +12,11 @@
 #include "webserver.hpp"
 #include "xye.hpp"
 #include "onewire.hpp"
+#include "led.hpp"
+#include "config.hpp"
+#include "utils.hpp"
 
 // variabls for blinking an LED with Millis
-#define LED 2
-#define LED_FLASH_PERIOD 500
-#define TEMPERATURE_REPORT_PERIOD 60000
-
-unsigned long ledLastToggle = 0;
 unsigned long tempLastReport = 0;
 
 struct message myMessage;
@@ -32,7 +30,7 @@ void taskThree(void *parameter)
   while (1)
   {
     // Report temperature
-    if (millis() - tempLastReport > TEMPERATURE_REPORT_PERIOD)
+    if (millis() - tempLastReport > INTERNAL_TEMPERATURE_REPORT_PERIOD)
     {
       tempLastReport = millis();
       getTemperature();
@@ -88,58 +86,8 @@ void setupTaskTwo()
       &taskTwoHandle); /* Task handle. */
 }
 
-void loop(void)
-{
-  if (millis() - ledLastToggle > LED_FLASH_PERIOD)
-  {
-    ledLastToggle = millis();
-    digitalWrite(LED, !digitalRead(LED));
-    // Serial.println("LED toggle");
-  }
-
-  // Process queue
-  if (WiFi.status() == WL_CONNECTED && mqttConnected() && xQueueReceive(queue, &myMessage, 0))
-  {
-    Serial.print("+ Sending to mqtt: ");
-    Serial.println(myMessage.topic);
-
-    /*
-    Topic: mac-58bf25361790/ble/182253564990597/bms/03
-    Data: {"time": 12345678, "raw": "DEADBEEF"}
-    */
-
-    doc.clear();
-    doc["time"] = myMessage.time;
-    doc["raw"] = myMessage.raw;
-
-    char buffer[256];
-    size_t n = serializeJson(doc, buffer);
-
-    mqttSendBuffer(myMessage.topic, buffer, n);
-  }
-
-  loopWebserverOnce();
-  mqttLoopOnce();
-  ntpLoopOnce();
-  loopOneWireOnce();
-
-  delay(100);
-}
-
-/* setup function */
-void setup(void)
-{
-  setupQueue();
-  pinMode(LED, OUTPUT);
-
-  Serial.begin(115200);
-  Serial.setDebugOutput(true);
-  delay(3000);
-  Serial.println("\n== Startup ==");
-
-  Serial.println(WiFi.macAddress());
-
-  // Connect to WiFi network
+void setupNetwork() {
+    // Connect to WiFi network
   WiFi.begin(ssid, password);
   Serial.println("");
 
@@ -165,6 +113,69 @@ void setup(void)
     }
   }
   Serial.println("mDNS responder started");
+}
+
+void processQueue()
+{
+  if (WiFi.status() == WL_CONNECTED && mqttConnected())
+  {
+    // Process queue
+    if (xQueuePeek(queue, &myMessage, 0))
+    {
+      Serial.print("[Main] Sending to mqtt: ");
+      Serial.print(myMessage.topic);
+      Serial.print(" ");
+      Serial.println(myMessage.raw);
+
+      doc.clear();
+      doc["time"] = myMessage.time;
+      doc["raw"] = myMessage.raw;
+
+      char buffer[256];
+      size_t n = serializeJson(doc, buffer);
+
+      if (mqttSendBuffer(myMessage.topic, buffer, n))
+      {
+        // if send was successful, we remove it from the queue
+        xQueueReceive(queue, &myMessage, 0);
+      }
+      else
+      {
+        Serial.println("[Main] Send failed, leaving on queue");
+      }
+    }
+  }
+}
+
+// Main task, aka taskOne
+void loop(void)
+{
+  ledLoopOnce();
+  processQueue();
+  loopWebserverOnce();
+  mqttLoopOnce();
+  ntpLoopOnce();
+  loopOneWireOnce();
+
+  delay(100);
+}
+
+/* setup function */
+void setup(void)
+{
+  Serial.begin(115200);
+  Serial.setDebugOutput(true);
+  delay(3000);
+
+  Serial.println("\n== Startup ==");
+  
+  char host[17];
+  getHostname(host, sizeof(host));
+  Serial.print("# Receiver ID: ");
+  Serial.println(host);
+
+  // Need to setup the queues before using them
+  setupQueue();
 
   // Send startup reason as event
   String reason0 = get_reset_reason(get_reset_reason_code(0));
@@ -175,13 +186,11 @@ void setup(void)
   snprintf(myMessage.raw, sizeof(myMessage.raw), "system startup, %s, %s", reason0, reason1);
   xQueueSend(queue, &myMessage, portTICK_PERIOD_MS * 1000);
 
-
+  setupNetwork();
   setupMqtt();
   setupWebserver();
   setupOneWire();
 
   setupTaskTwo();
   setupTaskThree();
-
-
 }

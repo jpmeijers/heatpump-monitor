@@ -26,10 +26,10 @@ void sendFrame()
     {
         Serial.println("XYE command received");
         // request/command has FF in 3rd byte
-        if (millis() - lastReportCommand < XYE_REPORT_INTERVAL)
-        {
-            return;
-        }
+        // if (millis() - lastReportCommand < XYE_REPORT_INTERVAL)
+        // {
+        //     return;
+        // }
         lastReportCommand = millis();
         // /rs485/heatpump/xye/command
         snprintf(myMessage.topic, sizeof(myMessage.topic), "/rs485/xye/command");
@@ -38,10 +38,10 @@ void sendFrame()
     {
         Serial.println("XYE status received");
         // response/status has FF in 4th byte
-        if (millis() - lastReportStatus < XYE_REPORT_INTERVAL)
-        {
-            return;
-        }
+        // if (millis() - lastReportStatus < XYE_REPORT_INTERVAL)
+        // {
+        //     return;
+        // }
         lastReportStatus = millis();
         // /rs485/heatpump/xye/status
         snprintf(myMessage.topic, sizeof(myMessage.topic), "/rs485/xye/status");

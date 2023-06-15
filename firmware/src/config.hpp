@@ -1,2 +1,14 @@
+#define LED 2
+#define LED_FLASH_PERIOD 500
+#define INTERNAL_TEMPERATURE_REPORT_PERIOD 60000
+
 #define ONE_WIRE_BUS 4
-#define ONEWIRE_READ_INTERVAL 1000
+#define ONEWIRE_READ_INTERVAL 10000
+
+#define NTP_PRINT_PERIOD 60
+#define NTP_PRINT_TZ_OFFSET 2
+
+#define NTP_SERVER_1 "pool.ntp.org"
+#define NTP_SERVER_2 "time.nist.gov"
+
+#define XYE_TIMEOUT 60000

@@ -6,25 +6,27 @@
 #include "mqtt.hpp"
 #include "queue.hpp"
 #include "ntp.hpp"
+#include "utils.hpp"
+#include "wifiFix.h"
 
-WiFiClient wifiClient;
-PubSubClient mqttClient(wifiClient);
+WiFiClient *wifiClient = new WiFiClientFixed();
+PubSubClient mqttClient(*wifiClient);
 
+// placeholder topics to get lengths correct
 char topicEvents[] = "/mac-112233445566/events";
 char topicLogs[] = "/mac-112233445566/logs";
-char topicConfig[] = "/mac-112233445566/config";
+char topicConfig[] = "/mac-112233445566/config/#";
 char topicMacPrefix[] = "/mac-112233445566";
 
 void macToTopics()
 {
-#define WL_MAC_ADDR_LENGTH 6
-  uint8_t mac[WL_MAC_ADDR_LENGTH];
-  WiFi.macAddress(mac);
+  char host[17];
+  getHostname(host, sizeof(host));
 
-  snprintf(topicMacPrefix, sizeof(topicMacPrefix), "/mac-%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  snprintf(topicMacPrefix, sizeof(topicMacPrefix), "/%s", host);
   snprintf(topicEvents, sizeof(topicEvents), "%s/events", topicMacPrefix);
   snprintf(topicLogs, sizeof(topicLogs), "%s/logs", topicMacPrefix);
-  snprintf(topicConfig, sizeof(topicConfig), "%s/config", topicMacPrefix);
+  snprintf(topicConfig, sizeof(topicConfig), "%s/config/#", topicMacPrefix);
 }
 
 void mqttCallback(char *topic, byte *payload, unsigned int length)
@@ -37,6 +39,8 @@ void mqttCallback(char *topic, byte *payload, unsigned int length)
     Serial.print((char)payload[i]);
   }
   Serial.println();
+
+  // TODO do something with the received message
 }
 
 void mqttReconnect()
@@ -87,8 +91,10 @@ void setupMqtt()
 
 void mqttCheckState()
 {
+  static int previousState = 0;
   int state = mqttClient.state();
-  if (state != 0 && state != -1) // ignore connected and disconnected
+  // if (state != 0 && state != -1) // ignore connected and disconnected
+  if (state != previousState)
   {
     struct message myMessage;
     myMessage.time = getTime();
@@ -97,38 +103,43 @@ void mqttCheckState()
     switch (mqttClient.state())
     {
     case -4:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECTION_TIMEOUT");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECTION_TIMEOUT");
       break; // - the server didn't respond within the keepalive time
     case -3:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECTION_LOST");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECTION_LOST");
       break; // - the network connection was broken
     case -2:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_FAILED");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_FAILED");
       break; // - the network connection failed
     case -1:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_DISCONNECTED");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_DISCONNECTED");
       break; // - the client is disconnected cleanly
     case 0:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECTED");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECTED");
       break; // - the client is connected
     case 1:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_BAD_PROTOCOL");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_BAD_PROTOCOL");
       break; // - the server doesn't support the requested version of MQTT
     case 2:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_BAD_CLIENT_ID");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_BAD_CLIENT_ID");
       break; // - the server rejected the client identifier
     case 3:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_UNAVAILABLE");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_UNAVAILABLE");
       break; // - the server was unable to accept the connection
     case 4:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_BAD_CREDENTIALS");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_BAD_CREDENTIALS");
       break; // - the username/password were rejected
     case 5:
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_UNAUTHORIZED");
+      snprintf(myMessage.raw, sizeof(myMessage.raw), "MQTT_CONNECT_UNAUTHORIZED");
       break; // - the client was not authorized to connect
     }
+
+    Serial.print("[MQTT] State: ");
+    Serial.println(myMessage.raw);
+
     xQueueSend(queue, &myMessage, portTICK_PERIOD_MS * 1000);
   }
+  previousState = state;
 }
 
 void mqttLoopOnce()
