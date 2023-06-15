@@ -59,7 +59,7 @@ void getTemperature()
     myMessage.time = getTime();
 
     snprintf(myMessage.topic, sizeof(myMessage.topic), "/temperature");
-    snprintf(myMessage.raw, sizeof(myMessage.raw), "%f", tempC);
+    snprintf(myMessage.raw, sizeof(myMessage.raw), "%g", tempC);
 
     xQueueSend(queue, &myMessage, portTICK_PERIOD_MS * 1000);
 }

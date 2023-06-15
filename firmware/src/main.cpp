@@ -187,6 +187,7 @@ void setup(void)
   xQueueSend(queue, &myMessage, portTICK_PERIOD_MS * 1000);
 
   setupNetwork();
+  setupNtp();
   setupMqtt();
   setupWebserver();
   setupOneWire();
