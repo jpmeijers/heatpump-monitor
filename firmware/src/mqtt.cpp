@@ -91,7 +91,7 @@ void setupMqtt()
 
 void mqttCheckState()
 {
-  static int previousState = 0;
+  static int previousState = MQTT_DISCONNECTED;
   int state = mqttClient.state();
   // if (state != 0 && state != -1) // ignore connected and disconnected
   if (state != previousState)
