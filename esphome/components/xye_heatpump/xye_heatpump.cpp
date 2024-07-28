@@ -13,9 +13,18 @@ namespace esphome
 
     static const char *const TAG = "xye_heatpump.sensor";
 
+    void XyeHeatpumpComponent::setup()
+    {
+      if (this->flow_control_pin_ != nullptr)
+      {
+        this->flow_control_pin_->setup();
+      }
+    }
+
     void XyeHeatpumpComponent::loop()
     {
       uint8_t data;
+      this->flow_control_pin_->digital_write(false);
       while (this->available() > 0)
       {
         this->read_byte(&data);
@@ -114,7 +123,7 @@ namespace esphome
           t4->publish_state(float(temp) / 2 - 0x0F);
 
           temp = this->buffer_[0x19];
-          pump_on->publish_state(temp>0);
+          pump_on->publish_state(temp > 0);
 
           // Use set temperature from command
           // uint8_t t_set = this->buffer_[0x1C];
@@ -126,7 +135,11 @@ namespace esphome
     }
 
     // void XyeHeatpumpComponent::dump_config() { LOG_SENSOR("", "XYE Heatpump Sensor", this); }
-    void XyeHeatpumpComponent::dump_config() { ESP_LOGCONFIG(TAG, "no config"); }
+    void XyeHeatpumpComponent::dump_config()
+    {
+      ESP_LOGCONFIG(TAG, "XYE Heatpump:");
+      LOG_PIN("  Flow Control Pin: ", this->flow_control_pin_);
+    }
 
   } // namespace xye_heatpump
 } // namespace esphome

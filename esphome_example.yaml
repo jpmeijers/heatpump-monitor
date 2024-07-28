@@ -7,16 +7,17 @@ logger:
   level: DEBUG
 
 esphome:
-    name: xye_heatpump_test
-    platform: ESP32
-    board: esp32dev
-    build_path: .build/xye_heatpump_test
+  name: xye-heatpump-test
+  platform: ESP32
+  board: esp32dev
+  build_path: .build/xye_heatpump_test
 
 xye_heatpump:
+  flow_control_pin: GPIO33
 
 uart:
-  tx_pin: 32
-  rx_pin: 35
+  tx_pin: GPIO32
+  rx_pin: GPIO35
   baud_rate: 1200
 
 binary_sensor:
