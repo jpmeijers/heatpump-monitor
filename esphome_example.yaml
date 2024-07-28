@@ -1,0 +1,23 @@
+external_components:
+  - source:
+      type: local
+      path: esphome/components
+
+logger:
+  level: DEBUG
+
+esphome:
+    name: xye_heatpump_test
+    platform: ESP32
+    board: esp32dev
+    build_path: .build/xye_heatpump_test
+
+xye_heatpump:
+
+uart:
+  tx_pin: 32
+  rx_pin: 35
+  baud_rate: 1200
+
+binary_sensor:
+sensor:
