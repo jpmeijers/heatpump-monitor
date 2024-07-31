@@ -28,7 +28,6 @@ namespace esphome
       while (this->available() > 0)
       {
         this->read_byte(&data);
-        ESP_LOGD(TAG, "byte %02X", data);
         if (this->buffer_.empty() && (data != 0xaa))
           continue;
         buffer_.push_back(data);
