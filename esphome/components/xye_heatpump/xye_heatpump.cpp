@@ -28,6 +28,7 @@ namespace esphome
       while (this->available() > 0)
       {
         this->read_byte(&data);
+        ESP_LOGD(TAG, "byte %02X", data);
         if (this->buffer_.empty() && (data != 0xaa))
           continue;
         buffer_.push_back(data);
@@ -76,23 +77,38 @@ namespace esphome
           if (temp == 0x08)
           {
             // schedule off
-            schedule->publish_state(false);
+            if (this->schedule_binary_sensor_ != nullptr)
+            {
+              this->schedule_binary_sensor_->publish_state(false);
+            }
           }
           if (temp == 0x00)
           {
             // schedule on
-            schedule->publish_state(true);
+            if (this->schedule_binary_sensor_ != nullptr)
+            {
+              this->schedule_binary_sensor_->publish_state(true);
+            }
           }
           // other values unknown
 
           temp = this->buffer_[5];
-          t_set->publish_state(float(temp));
+          if (this->t_set_sensor_ != nullptr)
+          {
+            this->t_set_sensor_->publish_state(float(temp));
+          }
 
           temp = this->buffer_[6];
-          t_delta->publish_state(float(temp));
+          if (t_delta_sensor_ != nullptr)
+          {
+            this->t_delta_sensor_->publish_state(float(temp));
+          }
 
           temp = this->buffer_[11];
-          e_heat->publish_state(temp > 0);
+          if (this->e_heat_binary_sensor_ != nullptr)
+          {
+            this->e_heat_binary_sensor_->publish_state(temp > 0);
+          }
         }
 
         // Reply from outdoor unit to panel
@@ -105,25 +121,46 @@ namespace esphome
           // uint8_t schedule = this->buffer_[4];
 
           temp = this->buffer_[8];
-          t1->publish_state(float(temp) / 2 - 0x0F);
+          if (t1_sensor_ != nullptr)
+          {
+            this->t1_sensor_->publish_state(float(temp) / 2 - 0x0F);
+          }
 
           temp = this->buffer_[9];
-          pump_percentage->publish_state(float(temp));
+          if (pump_percentage_sensor_ != nullptr)
+          {
+            this->pump_percentage_sensor_->publish_state(float(temp));
+          }
 
           temp = this->buffer_[14];
-          t3->publish_state(float(temp) / 2 - 0x0F);
+          if (t3_sensor_ != nullptr)
+          {
+            this->t3_sensor_->publish_state(float(temp) / 2 - 0x0F);
+          }
 
           temp = this->buffer_[16];
-          pump_current->publish_state(float(temp));
+          if (pump_current_sensor_ != nullptr)
+          {
+            this->pump_current_sensor_->publish_state(float(temp));
+          }
 
           temp = this->buffer_[22];
-          t5->publish_state(float(temp) / 2 - 0x0F);
+          if (t5_sensor_ != nullptr)
+          {
+            this->t5_sensor_->publish_state(float(temp) / 2 - 0x0F);
+          }
 
           temp = this->buffer_[23];
-          t4->publish_state(float(temp) / 2 - 0x0F);
+          if (t4_sensor_ != nullptr)
+          {
+            this->t4_sensor_->publish_state(float(temp) / 2 - 0x0F);
+          }
 
           temp = this->buffer_[0x19];
-          pump_on->publish_state(temp > 0);
+          if (this->pump_on_binary_sensor_ != nullptr)
+          {
+            this->pump_on_binary_sensor_->publish_state(temp > 0);
+          }
 
           // Use set temperature from command
           // uint8_t t_set = this->buffer_[0x1C];

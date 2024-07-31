@@ -14,18 +14,21 @@ namespace esphome
 
     class XyeHeatpumpComponent : public Component, public uart::UARTDevice
     {
+
     public:
-      binary_sensor::BinarySensor *schedule;
-      sensor::Sensor *t_set;
-      sensor::Sensor *t_delta;
-      binary_sensor::BinarySensor *e_heat;
-      sensor::Sensor *t1;
-      sensor::Sensor *pump_percentage;
-      sensor::Sensor *t3;
-      sensor::Sensor *pump_current;
-      sensor::Sensor *t5;
-      sensor::Sensor *t4;
-      binary_sensor::BinarySensor *pump_on;
+
+      SUB_BINARY_SENSOR(schedule)
+      SUB_BINARY_SENSOR(e_heat)
+      SUB_BINARY_SENSOR(pump_on)
+      
+      SUB_SENSOR(t_set)
+      SUB_SENSOR(t_delta)
+      SUB_SENSOR(t1)
+      SUB_SENSOR(pump_percentage)
+      SUB_SENSOR(t3)
+      SUB_SENSOR(pump_current)
+      SUB_SENSOR(t5)
+      SUB_SENSOR(t4)
 
       // ========== INTERNAL METHODS ==========
       void setup() override;
