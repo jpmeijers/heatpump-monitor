@@ -4,6 +4,7 @@ from esphome.cpp_helpers import gpio_pin_expression
 from esphome.components import uart
 from esphome.const import (
     CONF_FLOW_CONTROL_PIN,
+    CONF_ID,
 )
 from esphome.const import CONF_ID
 from esphome import pins
@@ -33,6 +34,6 @@ async def to_code(config):
     await cg.register_component(var, config)
     await uart.register_uart_device(var, config)
 
-    # if CONF_FLOW_CONTROL_PIN in config:
-    pin = await gpio_pin_expression(config[CONF_FLOW_CONTROL_PIN])
-    cg.add(var.set_flow_control_pin(pin))
+    if CONF_FLOW_CONTROL_PIN in config:
+        pin = await gpio_pin_expression(config[CONF_FLOW_CONTROL_PIN])
+        cg.add(var.set_flow_control_pin(pin))

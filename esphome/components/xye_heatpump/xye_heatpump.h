@@ -16,19 +16,18 @@ namespace esphome
     {
 
     public:
+      SUB_BINARY_SENSOR(schedule) // CONF_SCHEDULE
+      SUB_BINARY_SENSOR(e_heat)   // CONF_E_HEAT
+      SUB_BINARY_SENSOR(pump_on)  // CONF_PUMP_ON
 
-      SUB_BINARY_SENSOR(schedule)
-      SUB_BINARY_SENSOR(e_heat)
-      SUB_BINARY_SENSOR(pump_on)
-      
-      SUB_SENSOR(t_set)
-      SUB_SENSOR(t_delta)
-      SUB_SENSOR(t1)
-      SUB_SENSOR(pump_percentage)
-      SUB_SENSOR(t3)
-      SUB_SENSOR(pump_current)
-      SUB_SENSOR(t5)
-      SUB_SENSOR(t4)
+      SUB_SENSOR(temperature_set)   // CONF_TEMPERATURE_SET
+      SUB_SENSOR(temperature_delta) // CONF_TEMPERATURE_DELTA
+      SUB_SENSOR(temperature_t1)    // CONF_TEMPERATURE_T1
+      SUB_SENSOR(pump_percentage)   // CONF_PUMP_PERCENTAGE
+      SUB_SENSOR(temperature_t3)    // CONF_TEMPERATURE_T3
+      SUB_SENSOR(pump_current)      // CONF_PUMP_CURRENT
+      SUB_SENSOR(temperature_t5)    // CONF_TEMPERATURE_T5
+      SUB_SENSOR(temperature_t4)    // CONF_TEMPERATURE_T4
 
       // ========== INTERNAL METHODS ==========
       void setup() override;

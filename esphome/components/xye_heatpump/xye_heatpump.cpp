@@ -92,15 +92,15 @@ namespace esphome
           // other values unknown
 
           temp = this->buffer_[5];
-          if (this->t_set_sensor_ != nullptr)
+          if (this->temperature_set_sensor_ != nullptr)
           {
-            this->t_set_sensor_->publish_state(float(temp));
+            this->temperature_set_sensor_->publish_state(float(temp));
           }
 
           temp = this->buffer_[6];
-          if (t_delta_sensor_ != nullptr)
+          if (temperature_delta_sensor_ != nullptr)
           {
-            this->t_delta_sensor_->publish_state(float(temp));
+            this->temperature_delta_sensor_->publish_state(float(temp));
           }
 
           temp = this->buffer_[11];
@@ -120,9 +120,9 @@ namespace esphome
           // uint8_t schedule = this->buffer_[4];
 
           temp = this->buffer_[8];
-          if (t1_sensor_ != nullptr)
+          if (temperature_t1_sensor_ != nullptr)
           {
-            this->t1_sensor_->publish_state(float(temp) / 2 - 0x0F);
+            this->temperature_t1_sensor_->publish_state(float(temp) / 2 - 0x0F);
           }
 
           temp = this->buffer_[9];
@@ -132,9 +132,9 @@ namespace esphome
           }
 
           temp = this->buffer_[14];
-          if (t3_sensor_ != nullptr)
+          if (temperature_t3_sensor_ != nullptr)
           {
-            this->t3_sensor_->publish_state(float(temp) / 2 - 0x0F);
+            this->temperature_t3_sensor_->publish_state(float(temp) / 2 - 0x0F);
           }
 
           temp = this->buffer_[16];
@@ -144,15 +144,15 @@ namespace esphome
           }
 
           temp = this->buffer_[22];
-          if (t5_sensor_ != nullptr)
+          if (temperature_t5_sensor_ != nullptr)
           {
-            this->t5_sensor_->publish_state(float(temp) / 2 - 0x0F);
+            this->temperature_t5_sensor_->publish_state(float(temp) / 2 - 0x0F);
           }
 
           temp = this->buffer_[23];
-          if (t4_sensor_ != nullptr)
+          if (temperature_t4_sensor_ != nullptr)
           {
-            this->t4_sensor_->publish_state(float(temp) / 2 - 0x0F);
+            this->temperature_t4_sensor_->publish_state(float(temp) / 2 - 0x0F);
           }
 
           temp = this->buffer_[0x19];

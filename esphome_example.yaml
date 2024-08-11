@@ -14,11 +14,39 @@ esphome:
 
 xye_heatpump:
   flow_control_pin: GPIO33
+  # uart_id: my_uart
+  # setup_priority: 600
+
+sensor:
+  - platform: xye_heatpump
+    temperature_set:
+      name: Tank Target Temperature
+    temperature_delta:
+      name: Hysteresis temperature
+    temperature_t1:
+      name: Outlet Water Temperature
+    temperature_t3:
+      name: Evaporator Temperature
+    temperature_t4:
+      name: Environment Temperature
+    temperature_t5:
+      name: Tank Temperature
+    pump_current:
+      name: Pump Current
+    pump_percentage:
+      name: Pump percentage
+
+binary_sensor:
+  - platform: xye_heatpump
+    schedule:
+      name: Schedule
+    e_heat:
+      name: e-Heat
+    pump_on:
+      name: Pump
 
 uart:
+  # id: my_uart
   tx_pin: GPIO32
   rx_pin: GPIO35
   baud_rate: 1200
-
-binary_sensor:
-sensor:
